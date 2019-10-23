@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-usb-event" version="0.0.1" 
+    xmlns="http://apache.org/cordova/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>cordova-plugin-usb-event</name>
+
+    <js-module name="UsbEvent" src="www/UsbEvent.js">
+        <clobbers target="cordova.plugins.usbevent" />
+    </js-module>
+
+    <platform name="android">
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="UsbEvent">
+                <param name="android-package" value="net.kyosho.usb.event.UsbEvent" />
+            </feature>
+        </config-file>
+        <config-file parent="/*" target="AndroidManifest.xml"></config-file>
+        <source-file src="src/android/UsbEvent.java" target-dir="src/net/kyosho/usb/event" />
+    </platform>
+</plugin>

@@ -1,0 +1,24 @@
+{
+  "name": "net.kyosho.usb",
+  "version": "0.0.1",
+  "description": "USB attached event plugin.",
+  "cordova": {
+    "id": "cordova-plugin-usb-event",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kyosho-@github.com/kyosho-/cordova-plugin-usb-event.git"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Akira Kurosawa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kyosho-/cordova-plugin-usb-event/issues"
+  },
+  "homepage": "https://github.com/kyosho-/cordova-plugin-usb-event#readme"
+}
