@@ -16,6 +16,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * This class echoes a string called from JavaScript.
  */
@@ -23,43 +30,24 @@ public class UsbEvent extends CordovaPlugin {
 
   private final String TAG = UsbEvent.class.getSimpleName();
 
-  // private static final String ACTION_ATTACH_CALLBACK =
-  // "registerAttachCallback";
-  // private static final String ACTION_DETACH_CALLBACK =
-  // "registerDetachCallback";
   private static final String ACTION_EVENT_CALLBACK = "registerEventCallback";
+
+  private CallbackContext eventCallback;
 
   private UsbManager usbManager;
 
-  private CallbackContext eventCallback;
+  private Map<String, UsbDevice> currentDeviceList = new HashMap();
 
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
     switch (action) {
-    // case ACTION_ATTACH_CALLBACK:
-    // this.coolMethod(args, callbackContext);
-    // return true;
-    // case ACTION_DETACH_CALLBACK:
-    // this.coolMethod(args, callbackContext);
-    // return true;
-    case ACTION_EVENT_CALLBACK:
-      this.registerEventCallback(args, callbackContext);
-      return true;
-    default:
-      return false;
+      case ACTION_EVENT_CALLBACK:
+        this.registerEventCallback(args, callbackContext);
+        return true;
+      default:
+        return false;
     }
   }
-
-  // private void coolMethod(JSONArray args, CallbackContext callbackContext)
-  // throws JSONException {
-  // String message = args.getString(0);
-  //
-  // if (message != null && message.length() > 0) {
-  // callbackContext.success(message);
-  // } else {
-  // callbackContext.error("Expected one non-empty string argument.");
-  // }
-  // }
 
   private void registerEventCallback(final JSONArray args, final CallbackContext callbackContext) {
     Log.d(TAG, "Registering callback");
@@ -68,23 +56,21 @@ public class UsbEvent extends CordovaPlugin {
 
     cordova.getThreadPool().execute(new Runnable() {
       public void run() {
-        Log.d(TAG, "Registering Event Callback");
-        eventCallback = callbackContext;
-        JSONObject returnObj = new JSONObject();
-        addProperty(returnObj, ACTION_EVENT_CALLBACK, true);
-        // Keep the callback
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
-        pluginResult.setKeepCallback(true);
-        callbackContext.sendPluginResult(pluginResult);
+        try {
+          Log.d(TAG, "Registering Event Callback");
+          eventCallback = callbackContext;
+          JSONObject returnObj = new JSONObject();
+          returnObj.put(ACTION_EVENT_CALLBACK, true);
+          // Keep the callback
+          PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
+          pluginResult.setKeepCallback(true);
+          callbackContext.sendPluginResult(pluginResult);
+        } catch (JSONException e) {
+          // TODO:
+          e.printStackTrace();
+        }
       }
     });
-  }
-
-  private void addProperty(JSONObject obj, String key, Object value) {
-    try {
-      obj.put(key, value);
-    } catch (JSONException e) {
-    }
   }
 
   private void registerUsbAttached() {
@@ -95,6 +81,19 @@ public class UsbEvent extends CordovaPlugin {
   private void registerUsbDetached() {
     IntentFilter filter = new IntentFilter(UsbManager.ACTION_USB_DEVICE_DETACHED);
     this.cordova.getActivity().registerReceiver(this.usbDetachReceiver, filter);
+  }
+
+  private void updateCurrentUsbDeviceList() {
+    this.currentDeviceList.clear();
+    HashMap<String, UsbDevice> deviceList = this.usbManager.getDeviceList();
+    this.currentDeviceList.putAll(deviceList);
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    this.usbManager = (UsbManager) this.cordova.getActivity().getSystemService(Context.USB_SERVICE);
+    this.updateCurrentUsbDeviceList();
   }
 
   @Override
@@ -120,42 +119,52 @@ public class UsbEvent extends CordovaPlugin {
 
   BroadcastReceiver usbAttachReceiver = new BroadcastReceiver() {
     public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
+      try {
+        String action = intent.getAction();
+        UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
-      if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-        // showDevices();
-        if (UsbEvent.this.eventCallback != null) {
+        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) &&
+          UsbEvent.this.eventCallback != null &&
+          device != null) {
+
           JSONObject returnObj = new JSONObject();
-          addProperty(returnObj, PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_ATTACHED);
+          returnObj.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_ATTACHED);
+          returnObj.put("vendorId", device.getVendorId());
+          returnObj.put("productId", device.getProductId());
+
           PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
           result.setKeepCallback(true);
           eventCallback.sendPluginResult(result);
         }
+      } catch (JSONException e) {
+        // TODO:
+        e.printStackTrace();
       }
     }
   };
 
   BroadcastReceiver usbDetachReceiver = new BroadcastReceiver() {
     public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
+      try {
+        String action = intent.getAction();
+        UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
-      if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-        UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-        if (device != null) {
-          // call your method that cleans up and closes communication with the device
-          // UsbDataBinder binder = mHashMap.get(device);
-          // if (binder != null) {
-          // binder.onDestroy();
-          // mHashMap.remove(device);
-          // }
-          if (UsbEvent.this.eventCallback != null) {
-            JSONObject returnObj = new JSONObject();
-            addProperty(returnObj, PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_DETACHED);
-            PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
-            result.setKeepCallback(true);
-            eventCallback.sendPluginResult(result);
-          }
+        if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) &&
+          UsbEvent.this.eventCallback != null &&
+          device != null) {
+
+          JSONObject returnObj = new JSONObject();
+          returnObj.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_DETACHED);
+          returnObj.put("vendorId", device.getVendorId());
+          returnObj.put("productId", device.getProductId());
+
+          PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+          result.setKeepCallback(true);
+          eventCallback.sendPluginResult(result);
         }
+      } catch (JSONException e) {
+        // TODO:
+        e.printStackTrace();
       }
     }
   };
