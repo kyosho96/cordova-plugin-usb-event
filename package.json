@@ -8,12 +8,23 @@
       "android"
     ]
   },
+  "engines": {
+    "cordovaDependencies": {
+      "0.0.1": {
+        "cordova-android": ">=8.1.0"
+      }
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://kyosho-@github.com/kyosho-/cordova-plugin-usb-event.git"
   },
   "keywords": [
-    "ecosystem:cordova"
+    "cordova",
+    "usb",
+    "event",
+    "ecosystem:cordova",
+    "cordova-android"
   ],
   "author": "Akira Kurosawa",
   "license": "MIT",
