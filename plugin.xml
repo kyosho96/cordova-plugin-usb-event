@@ -2,9 +2,13 @@
 <plugin id="cordova-plugin-usb-event" version="0.0.1" 
     xmlns="http://apache.org/cordova/ns/plugins/1.0" 
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <name>cordova-plugin-usb-event</name>
 
-    <js-module name="UsbEvent" src="www/UsbEvent.js">
+    <name>cordova-plugin-usb-event</name>
+    <description>Cordova plugin to handle USB attach event for android</description>
+    <license>MIT</license>
+    <keywords>cordova,plugin,usb,event,android</keywords>
+
+    <js-module name="UsbEvent" src="www/usb-event.js">
         <clobbers target="cordova.plugins.usbevent" />
     </js-module>
 
@@ -14,7 +18,11 @@
                 <param name="android-package" value="net.kyosho.usb.event.UsbEvent" />
             </feature>
         </config-file>
-        <config-file parent="/*" target="AndroidManifest.xml"></config-file>
+
+        <config-file parent="/*" target="AndroidManifest.xml">
+            <uses-feature android:name="android.hardware.usb.host" android:required="true"/>
+        </config-file>
+
         <source-file src="src/android/UsbEvent.java" target-dir="src/net/kyosho/usb/event" />
     </platform>
 </plugin>
