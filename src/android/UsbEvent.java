@@ -25,12 +25,15 @@ public class UsbEvent extends CordovaPlugin {
 
   private final String TAG = UsbEvent.class.getSimpleName();
 
+  private static final String ACTION_LIST_DEVICES = "listDevices";
   private static final String ACTION_EVENT_CALLBACK = "registerEventCallback";
 
-  private static final String PROPERTY_EVENT_KEY = "event";
+  private static final String PROPERTY_DEVICE_LIST_KEY = "devices";
+  private static final String PROPERTY_EVENT_KEY = "id";
   private static final String PROPERTY_VID_KEY = "vendorId";
   private static final String PROPERTY_PID_KEY = "productId";
 
+  private static final String PROPERTY_EVENT_VALUE_LIST = "list";
   private static final String PROPERTY_EVENT_VALUE_CALLBACK = "callbackRegistered";
   private static final String PROPERTY_EVENT_VALUE_ATTACHED = "attached";
   private static final String PROPERTY_EVENT_VALUE_DETACHED = "detached";
@@ -39,11 +42,20 @@ public class UsbEvent extends CordovaPlugin {
 
   private UsbManager usbManager;
 
+  /**
+   * @param action          The action to execute.
+   * @param args            The exec() arguments.
+   * @param callbackContext The callback context used when calling back into JavaScript.
+   * @return result.
+   */
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
     switch (action) {
+      case ACTION_LIST_DEVICES:
+        this.listDevices(callbackContext);
+        return true;
       case ACTION_EVENT_CALLBACK:
-        this.registerEventCallback(args, callbackContext);
+        this.registerEventCallback(callbackContext);
         return true;
       default:
         callbackContext.error(String.format("Unsupported action. (action=%s)", action));
@@ -51,7 +63,38 @@ public class UsbEvent extends CordovaPlugin {
     return false;
   }
 
-  private void registerEventCallback(final JSONArray args, final CallbackContext callbackContext) {
+  private void listDevices(final CallbackContext callbackContext) {
+    try {
+      if(null == this.usbManager) {
+        this.usbManager = (UsbManager) this.cordova.getActivity().getSystemService(Context.USB_SERVICE);
+      }
+
+      HashMap<String, UsbDevice> deviceMap = this.usbManager.getDeviceList();
+
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_LIST);
+
+      JSONArray jsonArrayObject = new JSONArray();
+      for (UsbDevice device : deviceMap.values()) {
+        JSONObject jsonDevice = new JSONObject();
+        jsonDevice.put(PROPERTY_VID_KEY, device.getVendorId());
+        jsonDevice.put(PROPERTY_PID_KEY, device.getProductId());
+        jsonArrayObject.put(jsonDevice);
+      }
+      jsonObject.put(PROPERTY_DEVICE_LIST_KEY, jsonArrayObject);
+
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
+      pluginResult.setKeepCallback(false);
+      callbackContext.sendPluginResult(pluginResult);
+    } catch (JSONException e) {
+      callbackContext.error(e.getMessage());
+    }
+  }
+
+  /**
+   * @param callbackContext The callback context used when calling back into JavaScript.
+   */
+  private void registerEventCallback(final CallbackContext callbackContext) {
     Log.d(TAG, "Registering callback");
     this.registerUsbAttached();
     this.registerUsbDetached();
@@ -60,10 +103,11 @@ public class UsbEvent extends CordovaPlugin {
       try {
         Log.d(TAG, "Registering Event Callback");
         eventCallback = callbackContext;
-        JSONObject returnObj = new JSONObject();
-        returnObj.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_CALLBACK);
-        // Keep the callback
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, returnObj);
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_CALLBACK);
+
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
       } catch (JSONException e) {
@@ -82,15 +126,9 @@ public class UsbEvent extends CordovaPlugin {
     this.cordova.getActivity().registerReceiver(this.usbDetachReceiver, filter);
   }
 
-  private void updateCurrentUsbDeviceList() {
-    HashMap<String, UsbDevice> deviceList = this.usbManager.getDeviceList();
-  }
-
   @Override
   public void onStart() {
     super.onStart();
-    this.usbManager = (UsbManager) this.cordova.getActivity().getSystemService(Context.USB_SERVICE);
-    this.updateCurrentUsbDeviceList();
   }
 
   @Override
@@ -119,12 +157,12 @@ public class UsbEvent extends CordovaPlugin {
         if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action) &&
           UsbEvent.this.eventCallback != null && device != null) {
 
-          JSONObject returnObj = new JSONObject();
-          returnObj.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_ATTACHED);
-          returnObj.put(PROPERTY_VID_KEY, device.getVendorId());
-          returnObj.put(PROPERTY_PID_KEY, device.getProductId());
+          JSONObject jsonObject = new JSONObject();
+          jsonObject.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_ATTACHED);
+          jsonObject.put(PROPERTY_VID_KEY, device.getVendorId());
+          jsonObject.put(PROPERTY_PID_KEY, device.getProductId());
 
-          PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+          PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
           result.setKeepCallback(true);
           eventCallback.sendPluginResult(result);
         }
@@ -143,12 +181,12 @@ public class UsbEvent extends CordovaPlugin {
         if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action) &&
           UsbEvent.this.eventCallback != null && device != null) {
 
-          JSONObject returnObj = new JSONObject();
-          returnObj.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_DETACHED);
-          returnObj.put(PROPERTY_VID_KEY, device.getVendorId());
-          returnObj.put(PROPERTY_PID_KEY, device.getProductId());
+          JSONObject jsonObject = new JSONObject();
+          jsonObject.put(PROPERTY_EVENT_KEY, PROPERTY_EVENT_VALUE_DETACHED);
+          jsonObject.put(PROPERTY_VID_KEY, device.getVendorId());
+          jsonObject.put(PROPERTY_PID_KEY, device.getProductId());
 
-          PluginResult result = new PluginResult(PluginResult.Status.OK, returnObj);
+          PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
           result.setKeepCallback(true);
           eventCallback.sendPluginResult(result);
         }
