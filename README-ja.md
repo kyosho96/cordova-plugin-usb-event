@@ -1,4 +1,4 @@
-# cordova-plugin-usb-event
+## cordova-plugin-usb-event
 USB attached event plugin.
 
 ```ts

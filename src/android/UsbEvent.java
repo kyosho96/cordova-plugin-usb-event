@@ -66,6 +66,7 @@ public class UsbEvent extends CordovaPlugin {
 
   /**
    * Javascript entry point.
+   *
    * @param action          The action to execute.
    * @param args            The exec() arguments.
    * @param callbackContext The callback context used when calling back into JavaScript.
@@ -88,11 +89,12 @@ public class UsbEvent extends CordovaPlugin {
 
   /**
    * List USB devices.
+   *
    * @param callbackContext The callback context used when calling back into JavaScript.
    */
   private void listDevices(final CallbackContext callbackContext) {
     try {
-      if(null == this.usbManager) {
+      if (null == this.usbManager) {
         // Caching USBManager
         this.usbManager = (UsbManager) this.cordova.getActivity().getSystemService(Context.USB_SERVICE);
       }
@@ -118,7 +120,7 @@ public class UsbEvent extends CordovaPlugin {
       pluginResult.setKeepCallback(false);
       callbackContext.sendPluginResult(pluginResult);
     } catch (JSONException e) {
-      if(null == callbackContext) {
+      if (null == callbackContext) {
         Log.e(TAG, "callbackContext is null.");
       } else {
         callbackContext.error(e.getMessage());
@@ -129,6 +131,7 @@ public class UsbEvent extends CordovaPlugin {
   /**
    * Register event callback.
    * Callback emit device information at attaching and detaching USB after this method call.
+   *
    * @param callbackContext The callback context used when calling back into JavaScript.
    */
   private void registerEventCallback(final CallbackContext callbackContext) {
@@ -150,7 +153,7 @@ public class UsbEvent extends CordovaPlugin {
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
       } catch (JSONException e) {
-        if(null == eventCallback) {
+        if (null == eventCallback) {
           Log.e(TAG, "eventCallback is null.");
         } else {
           eventCallback.error(e.getMessage());
@@ -200,8 +203,13 @@ public class UsbEvent extends CordovaPlugin {
           // create output JSON object
           JSONObject jsonObject = new JSONObject();
           jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_ATTACHED);
-          jsonObject.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
-          jsonObject.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+
+          JSONArray jsonArrayObject = new JSONArray();
+          JSONObject jsonDevice = new JSONObject();
+          jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+          jsonArrayObject.put(jsonDevice);
+          jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
 
           // Callback with result.
           PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -209,7 +217,7 @@ public class UsbEvent extends CordovaPlugin {
           eventCallback.sendPluginResult(result);
         }
       } catch (JSONException e) {
-        if(null == eventCallback) {
+        if (null == eventCallback) {
           Log.e(TAG, "eventCallback is null.");
         } else {
           eventCallback.error(e.getMessage());
@@ -233,8 +241,13 @@ public class UsbEvent extends CordovaPlugin {
           // create output JSON object
           JSONObject jsonObject = new JSONObject();
           jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_DETACHED);
-          jsonObject.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
-          jsonObject.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+
+          JSONArray jsonArrayObject = new JSONArray();
+          JSONObject jsonDevice = new JSONObject();
+          jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+          jsonArrayObject.put(jsonDevice);
+          jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
 
           // Callback with result.
           PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -242,7 +255,7 @@ public class UsbEvent extends CordovaPlugin {
           eventCallback.sendPluginResult(result);
         }
       } catch (JSONException e) {
-        if(null == eventCallback) {
+        if (null == eventCallback) {
           Log.e(TAG, "eventCallback is null.");
         } else {
           eventCallback.error(e.getMessage());

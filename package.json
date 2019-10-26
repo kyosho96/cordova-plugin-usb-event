@@ -31,5 +31,9 @@
   "bugs": {
     "url": "https://github.com/kyosho-/cordova-plugin-usb-event/issues"
   },
-  "homepage": "https://github.com/kyosho-/cordova-plugin-usb-event#readme"
+  "homepage": "https://github.com/kyosho-/cordova-plugin-usb-event#readme",
+  "scripts": {
+    "test": "npx test"
+  },
+  "devDependencies": {}
 }
