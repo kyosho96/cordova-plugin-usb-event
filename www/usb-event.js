@@ -8,8 +8,22 @@ exports.listDevices = function (success, error) {
 };
 
 /**
+ * Check callback is already exists.
+ */
+exports.existsRegisteredCallback = function (success, error) {
+    exec(success, error, 'UsbEvent', 'existsRegisteredCallback', []);
+};
+
+/**
  * Register USB attached and detached event callback.
  */
 exports.registerEventCallback = function (success, error) {
     exec(success, error, 'UsbEvent', 'registerEventCallback', []);
+};
+
+/**
+ * Clear registered callback.
+ */
+exports.unregisterEventCallback = function (success, error) {
+    exec(success, error, 'UsbEvent', 'unregisterEventCallback', []);
 };

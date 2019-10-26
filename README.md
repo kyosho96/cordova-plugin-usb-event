@@ -94,6 +94,8 @@ Next, each result is returned on attaching an detaching USB.
 }
 ```
 
+Notice: This plugin can register single callback. The method overrite previous registered callback.
+
 ### Common output object definition
 
 Returned data definition is that.

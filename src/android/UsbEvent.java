@@ -34,9 +34,19 @@ public class UsbEvent extends CordovaPlugin {
   private static final String ACTION_LIST_DEVICES = "listDevices";
 
   /**
+   * Action key for checking register status.
+   */
+  private static final String ACTION_EVENT_EXISTS_CALLBACK = "existsRegisteredCallback";
+
+  /**
    * Action key for registering event callback.
    */
-  private static final String ACTION_EVENT_CALLBACK = "registerEventCallback";
+  private static final String ACTION_EVENT_REGISTER_CALLBACK = "registerEventCallback";
+
+  /**
+   * Action key for unregistering event callback.
+   */
+  private static final String ACTION_EVENT_UNREGISTER_CALLBACK = "unregisterEventCallback";
 
   /**
    * Output event value property keys.
@@ -50,7 +60,8 @@ public class UsbEvent extends CordovaPlugin {
    * Output event ids.
    */
   private static final String PROPERTY_EVENT_VALUE_LIST = "list";
-  private static final String PROPERTY_EVENT_VALUE_CALLBACK = "callbackRegistered";
+  private static final String PROPERTY_EVENT_VALUE_REGISTER_CALLBACK = "callbackRegistered";
+  private static final String PROPERTY_EVENT_VALUE_UNREGISTER_CALLBACK = "callbackUnregistered";
   private static final String PROPERTY_EVENT_VALUE_ATTACHED = "attached";
   private static final String PROPERTY_EVENT_VALUE_DETACHED = "detached";
 
@@ -78,8 +89,14 @@ public class UsbEvent extends CordovaPlugin {
       case ACTION_LIST_DEVICES:
         this.listDevices(callbackContext);
         return true;
-      case ACTION_EVENT_CALLBACK:
+      case ACTION_EVENT_EXISTS_CALLBACK:
+        this.existsRegisteredCallback(callbackContext);
+        return true;
+      case ACTION_EVENT_REGISTER_CALLBACK:
         this.registerEventCallback(callbackContext);
+        return true;
+      case ACTION_EVENT_UNREGISTER_CALLBACK:
+        this.unregisterEventCallback(callbackContext);
         return true;
       default:
         callbackContext.error(String.format("Unsupported action. (action=%s)", action));
@@ -129,6 +146,22 @@ public class UsbEvent extends CordovaPlugin {
   }
 
   /**
+   * Check callback is already exists.
+   *
+   * @param callbackContext The callback context used when calling back into JavaScript.
+   */
+  private void existsRegisteredCallback(final CallbackContext callbackContext) {
+    cordova.getThreadPool().execute(() -> {
+      boolean exists = (null != eventCallback);
+
+      // Callback with result.
+      PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, exists);
+      pluginResult.setKeepCallback(false);
+      callbackContext.sendPluginResult(pluginResult);
+    });
+  }
+
+  /**
    * Register event callback.
    * Callback emit device information at attaching and detaching USB after this method call.
    *
@@ -141,22 +174,55 @@ public class UsbEvent extends CordovaPlugin {
 
     cordova.getThreadPool().execute(() -> {
       try {
-        // Save callback
+        // Update callback
         eventCallback = callbackContext;
 
         // create output JSON object
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_CALLBACK);
+        jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_REGISTER_CALLBACK);
 
         // Callback with result.
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
       } catch (JSONException e) {
-        if (null == eventCallback) {
+        if (null == callbackContext) {
           Log.e(TAG, "eventCallback is null.");
         } else {
-          eventCallback.error(e.getMessage());
+          callbackContext.error(e.getMessage());
+        }
+      }
+    });
+  }
+
+  /**
+   * Unregister event callback.
+   *
+   * @param callbackContext The callback context used when calling back into JavaScript.
+   */
+  private void unregisterEventCallback(final CallbackContext callbackContext) {
+    // Stop monitoring
+    this.unregisterUsbDetached();
+    this.unregisterUsbAttached();
+
+    cordova.getThreadPool().execute(() -> {
+      try {
+        // Update callback
+        eventCallback = null;
+
+        // create output JSON object
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_UNREGISTER_CALLBACK);
+
+        // Callback with result.
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
+        pluginResult.setKeepCallback(false);
+        callbackContext.sendPluginResult(pluginResult);
+      } catch (JSONException e) {
+        if (null == callbackContext) {
+          Log.e(TAG, "eventCallback is null.");
+        } else {
+          callbackContext.error(e.getMessage());
         }
       }
     });
@@ -184,8 +250,22 @@ public class UsbEvent extends CordovaPlugin {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    this.cordova.getActivity().unregisterReceiver(this.usbDetachReceiver);
+    this.unregisterUsbDetached();
+    this.unregisterUsbAttached();
+  }
+
+  /**
+   * Stop monitoring USB attached.
+   */
+  private void unregisterUsbAttached() {
     this.cordova.getActivity().unregisterReceiver(this.usbAttachReceiver);
+  }
+
+  /**
+   * Stop monitoring USB detached.
+   */
+  private void unregisterUsbDetached() {
+    this.cordova.getActivity().unregisterReceiver(this.usbDetachReceiver);
   }
 
   /**
