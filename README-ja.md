@@ -14,6 +14,8 @@ $ cordova pluguin add cordova-plugin-usb-event
 
 * listDevices
 * registerEventCallback
+* unregisterEventCallback
+* existsRegisteredCallback
 
 ### USB機器リストを取得する
 
@@ -90,6 +92,47 @@ cordova.plugins.usbevent.registerEventCallback(
     }
   ]
 }
+```
+
+注釈：登録できるコールバックは１つです。2回目以降は以前のコールバック関数を上書きします。
+複数のイベントハンドラを扱いたい場合は、Javascript側で対処ください。
+
+### USB接続・切断イベントを取得を停止する
+
+`unregisterEventCallback` メソッドを利用すると
+`registerEventCallback` メソッドで登録したコールバックを解除できます。
+
+```js
+cordova.plugins.usbevent.unregisterEventCallback(
+      function(result) {
+        console.log(result);
+      },
+      function(error) {
+        console.log(error);
+      });
+```
+
+以下のオブジェクトが返れば成功です。
+
+```json
+{
+  "id": "callbackUnregistered"
+}
+```
+
+### イベント取得の状態を確認する
+
+`existsRegisteredCallback` メソッドは、コールバックを設定済みかを確認します。
+コールバック設定済みのときは `true` を返します。
+
+```js
+cordova.plugins.usbevent.existsRegisteredCallback(
+      function(result) {
+        console.log(result); // true if exists.
+      },
+      function(error) {
+        console.log(error);
+      });
 ```
 
 ### 取得データの定義
@@ -173,6 +216,38 @@ cordova.plugins.usbevent.registerEventCallback(
     }
   },
   (error: string) => {
+    console.log(error);
+  });
+```
+
+### unregisterEventCallback
+
+```ts
+// Typescript
+cordova.plugins.usbevent.unregisterEventCallback(
+  (result: UsbResult) => {
+    switch (result.id) {
+      case 'callbackUnregistered':
+        console.log(result);
+        break;
+      default:
+        console.log(`Unsupported event. (event=${JSON.stringify(result)})`);
+    }
+  },
+  (error: string) => {
+    console.log(error);
+  });
+```
+
+### existsRegisteredCallback
+
+```ts
+// Typescript
+cordova.plugins.usbevent.existsRegisteredCallback(
+  (exists: boolean) => {
+    console.log(exists); // true if exists.
+  },
+  (error: any) => {
     console.log(error);
   });
 ```

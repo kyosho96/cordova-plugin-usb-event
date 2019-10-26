@@ -15,6 +15,8 @@ $ cordova pluguin add cordova-plugin-usb-event
 
 * listDevices
 * registerEventCallback
+* unregisterEventCallback
+* existsRegisteredCallback
 
 ### List USB devices
 
@@ -96,6 +98,43 @@ Next, each result is returned on attaching an detaching USB.
 
 Notice: This plugin can register single callback. The method overrite previous registered callback.
 
+### Unandle USB attached and detached event
+
+`unregisterEventCallback` method unregister event callback.
+
+```js
+cordova.plugins.usbevent.unregisterEventCallback(
+      function(result) {
+        console.log(result);
+      },
+      function(error) {
+        console.log(error);
+      });
+```
+
+The following result is returned.
+
+```json
+{
+  "id": "callbackUnregistered"
+}
+```
+
+### Check callback registered
+
+`existsRegisteredCallback` check exits callback.
+The method return true if exits callback.
+
+```js
+cordova.plugins.usbevent.existsRegisteredCallback(
+      function(result) {
+        console.log(result); // true if exists.
+      },
+      function(error) {
+        console.log(error);
+      });
+```
+
 ### Common output object definition
 
 Returned data definition is that.
@@ -175,10 +214,42 @@ cordova.plugins.usbevent.registerEventCallback(
         }
         break;
       default:
-        reject(`Unsupported event. (event=${JSON.stringify(result)})`);
+        console.log(`Unsupported event. (event=${JSON.stringify(result)})`);
     }
   },
   (error: string) => {
+    console.log(error);
+  });
+```
+
+### unregisterEventCallback
+
+```ts
+// Typescript
+cordova.plugins.usbevent.unregisterEventCallback(
+  (result: UsbResult) => {
+    switch (result.id) {
+      case 'callbackUnregistered':
+        console.log(result);
+        break;
+      default:
+        console.log(`Unsupported event. (event=${JSON.stringify(result)})`);
+    }
+  },
+  (error: string) => {
+    console.log(error);
+  });
+```
+
+### existsRegisteredCallback
+
+```ts
+// Typescript
+cordova.plugins.usbevent.existsRegisteredCallback(
+  (exists: boolean) => {
+    console.log(exists); // true if exists.
+  },
+  (error: any) => {
     console.log(error);
   });
 ```
