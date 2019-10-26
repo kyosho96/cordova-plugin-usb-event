@@ -1,9 +1,15 @@
 var exec = require('cordova/exec');
 
-exports.registerEventCallback = function (success, error) {
-    exec(success, error, 'UsbEvent', 'registerEventCallback', []);
-};
-
+/**
+ * list USB devices.
+ */
 exports.listDevices = function (success, error) {
     exec(success, error, 'UsbEvent', 'listDevices', []);
+};
+
+/**
+ * Register USB attached and detached event callback.
+ */
+exports.registerEventCallback = function (success, error) {
+    exec(success, error, 'UsbEvent', 'registerEventCallback', []);
 };
