@@ -40,8 +40,7 @@ USB device information has vendor ID and product ID.
     {
       "vendorId": 1234,
       "productId": 4321
-    },
-    ...
+    }
   ]
 }
 ```
@@ -50,12 +49,12 @@ USB device information has vendor ID and product ID.
 
 `registerEventCallback` method can get USB device information on attached and detached.
 
-```ts
+```js
 cordova.plugins.usbevent.registerEventCallback(
-      function(result) => {
+      function(result) {
         console.log(result);
       },
-      function(error) => {
+      function(error) {
         console.log(error);
       });
 ```
@@ -78,8 +77,7 @@ Next, each result is returned on attaching an detaching USB.
     {
       "vendorId": 1234,
       "productId": 4321
-    },
-    ...
+    }
   ]
 }
 ```
@@ -91,8 +89,7 @@ Next, each result is returned on attaching an detaching USB.
     {
       "vendorId": 1234,
       "productId": 4321
-    },
-    ...
+    }
   ]
 }
 ```
@@ -134,9 +131,57 @@ interface UsbResult {
 
 ## Example
 
-writing...
+### listDevices
 
-## License - MIT
+```ts
+// Typescript
+cordova.plugins.usbevent.listDevices(
+  (result: UsbResult) => {
+    console.log(result.id);
+    for(const device in result.devices) {
+      console.log(device.vendorId);
+      console.log(device.productId);
+    }
+  },
+  (error: string) => {
+    console.log(error);
+  });
+```
+
+### registerEventCallback
+
+```ts
+// Typescript
+cordova.plugins.usbevent.registerEventCallback(
+  (result: UsbResult) => {
+    switch (result.id) {
+      case 'callbackRegistered':
+        console.log(`register is success.`);
+        break;
+      case 'attached':
+        console.log(`USB device is attached.`);
+        for(const device in result.devices) {
+          console.log(device.vendorId);
+          console.log(device.productId);
+        }
+        break;
+      case 'detached':
+        console.log(`USB device is detached.`);
+        for(const device in result.devices) {
+          console.log(device.vendorId);
+          console.log(device.productId);
+        }
+        break;
+      default:
+        reject(`Unsupported event. (event=${JSON.stringify(result)})`);
+    }
+  },
+  (error: string) => {
+    console.log(error);
+  });
+```
+
+# License - MIT
 
 ```
 MIT License
