@@ -1,0 +1,69 @@
+@startuml sequence(cordova-plugin-usb-event)
+hide footbox
+title Sequence Diagram - cordova-plugin-usb-event
+
+== listDevices ==
+
+"user-code" as usercode -> "usb-event" as usbevent: listDevices()
+activate usercode
+activate usbevent
+usbevent --> usercode: return
+deactivate usercode
+
+...
+
+usbevent -> usercode: callback(deviceList)
+activate usercode
+deactivate usbevent
+deactivate usercode
+
+== registerEventCallback\nunregisterEventCallback ==
+
+"user-code" as usercode -> "usb-event" as usbevent: registerEventCallback()
+activate usercode
+activate usbevent
+usbevent --> usercode: return
+deactivate usbevent
+deactivate usercode
+
+...
+
+"USB Hardware" as usb -> usbevent: Attached!
+activate usbevent
+usbevent -> usercode: callback(attached!!)
+activate usercode
+deactivate usbevent
+deactivate usercode
+
+...
+
+"USB Hardware" as usb -> usbevent: Detached!
+activate usbevent
+usbevent -> usercode: callback(detached!!)
+activate usercode
+deactivate usbevent
+deactivate usercode
+
+...
+
+"user-code" as usercode -> "usb-event" as usbevent: unregisterEventCallback()
+activate usercode
+activate usbevent
+usbevent --> usercode: return
+deactivate usbevent
+deactivate usercode
+
+"USB Hardware" as usb -> usbevent: Attached!
+
+"USB Hardware" as usb -> usbevent: Detached!
+
+== existsRegisteredCallback ==
+
+"user-code" as usercode -> "usb-event" as usbevent: existsRegisteredCallback()
+activate usercode
+activate usbevent
+usbevent --> usercode: return
+deactivate usbevent
+deactivate usercode
+
+@enduml

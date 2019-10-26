@@ -252,6 +252,10 @@ cordova.plugins.usbevent.existsRegisteredCallback(
   });
 ```
 
+## UML - シーケンス図
+
+![sequence diagram](./doc/sequence(cordova-plugin-usb-event).png)
+
 # ライセンス - MIT
 
 ```
