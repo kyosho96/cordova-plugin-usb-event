@@ -41,7 +41,10 @@ USB device information has vendor ID and product ID.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321
+      "productId": 4321,
+      "deviceId": 9876,
+      "deviceName": "USB device X",
+      "protocol": 5432
     }
   ]
 }
@@ -78,7 +81,10 @@ Next, each result is returned on attaching an detaching USB.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321
+      "productId": 4321,
+      "deviceId": 9876,
+      "deviceName": "USB device X",
+      "protocol": 5432
     }
   ]
 }
@@ -90,7 +96,10 @@ Next, each result is returned on attaching an detaching USB.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321
+      "productId": 4321,
+      "deviceId": 9876,
+      "deviceName": "USB device X",
+      "protocol": 5432
     }
   ]
 }
@@ -146,7 +155,9 @@ Returned data definition is that.
  * Event ID
  */
 enum UsbEventId {
+    List = 'list',
     Registered = 'callbackRegistered',
+    Unregistered = 'callbackUnregistered',
     Attached = 'attached',
     Detached = 'detached'
 }
@@ -159,6 +170,9 @@ enum UsbEventId {
 interface UsbDevice {
     vendorId: number;
     productId: number;
+    deviceId: number;
+    deviceName: string;
+    protocol: number;
 }
 
 /**

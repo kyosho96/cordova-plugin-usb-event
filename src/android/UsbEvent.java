@@ -55,6 +55,10 @@ public class UsbEvent extends CordovaPlugin {
   private static final String PROPERTY_EVENT_KEY_ID = "id";
   private static final String PROPERTY_EVENT_KEY_VID = "vendorId";
   private static final String PROPERTY_EVENT_KEY_PID = "productId";
+  private static final String PROPERTY_EVENT_KEY_DEVICE_ID = "deviceId";
+  private static final String PROPERTY_EVENT_KEY_DEVICE_NAME = "deviceName";
+  private static final String PROPERTY_EVENT_KEY_PROTOCOL = "protocol";
+
 
   /**
    * Output event ids.
@@ -128,6 +132,9 @@ public class UsbEvent extends CordovaPlugin {
         JSONObject jsonDevice = new JSONObject();
         jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
         jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+        jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
+        jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
+        jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
         jsonArrayObject.put(jsonDevice);
       }
       jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
@@ -288,6 +295,9 @@ public class UsbEvent extends CordovaPlugin {
           JSONObject jsonDevice = new JSONObject();
           jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
           jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
+          jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
           jsonArrayObject.put(jsonDevice);
           jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
 
@@ -326,6 +336,9 @@ public class UsbEvent extends CordovaPlugin {
           JSONObject jsonDevice = new JSONObject();
           jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
           jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
+          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
+          jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
           jsonArrayObject.put(jsonDevice);
           jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
 
