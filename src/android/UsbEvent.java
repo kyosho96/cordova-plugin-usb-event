@@ -49,30 +49,14 @@ public class UsbEvent extends CordovaPlugin {
   private static final String ACTION_EVENT_UNREGISTER_CALLBACK = "unregisterEventCallback";
 
   /**
-   * Output event value property keys.
-   */
-  private static final String PROPERTY_EVENT_KEY_DEVICE_LIST = "devices";
-  private static final String PROPERTY_EVENT_KEY_ID = "id";
-  private static final String PROPERTY_EVENT_KEY_VID = "vendorId";
-  private static final String PROPERTY_EVENT_KEY_PID = "productId";
-  private static final String PROPERTY_EVENT_KEY_DEVICE_ID = "deviceId";
-  private static final String PROPERTY_EVENT_KEY_DEVICE_NAME = "deviceName";
-  private static final String PROPERTY_EVENT_KEY_PROTOCOL = "protocol";
-
-
-  /**
-   * Output event ids.
-   */
-  private static final String PROPERTY_EVENT_VALUE_LIST = "list";
-  private static final String PROPERTY_EVENT_VALUE_REGISTER_CALLBACK = "callbackRegistered";
-  private static final String PROPERTY_EVENT_VALUE_UNREGISTER_CALLBACK = "callbackUnregistered";
-  private static final String PROPERTY_EVENT_VALUE_ATTACHED = "attached";
-  private static final String PROPERTY_EVENT_VALUE_DETACHED = "detached";
-
-  /**
    * Registered event callback.
    */
   private CallbackContext eventCallback;
+
+  /**
+   * filter
+   */
+  private IncludeFilter filter;
 
   /**
    * USB Manager.
@@ -91,13 +75,13 @@ public class UsbEvent extends CordovaPlugin {
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
     switch (action) {
       case ACTION_LIST_DEVICES:
-        this.listDevices(callbackContext);
+        this.listDevices(callbackContext, args);
         return true;
       case ACTION_EVENT_EXISTS_CALLBACK:
         this.existsRegisteredCallback(callbackContext);
         return true;
       case ACTION_EVENT_REGISTER_CALLBACK:
-        this.registerEventCallback(callbackContext);
+        this.registerEventCallback(callbackContext, args);
         return true;
       case ACTION_EVENT_UNREGISTER_CALLBACK:
         this.unregisterEventCallback(callbackContext);
@@ -112,32 +96,24 @@ public class UsbEvent extends CordovaPlugin {
    * List USB devices.
    *
    * @param callbackContext The callback context used when calling back into JavaScript.
+   * @param args            The exec() arguments.
    */
-  private void listDevices(final CallbackContext callbackContext) {
+  private void listDevices(final CallbackContext callbackContext, final JSONArray args) {
     try {
       if (null == this.usbManager) {
         // Caching USBManager
         this.usbManager = (UsbManager) this.cordova.getActivity().getSystemService(Context.USB_SERVICE);
       }
 
+      // Filter settings
+      // TIPS: throw if essencial object does not exist.
+      IncludeFilter filter = args == null ? null : IncludeFilter.create(args.getJSONObject(0));
+
       // Get USB devices
       HashMap<String, UsbDevice> deviceMap = this.usbManager.getDeviceList();
 
       // create output JSON object
-      JSONObject jsonObject = new JSONObject();
-      jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_LIST);
-
-      JSONArray jsonArrayObject = new JSONArray();
-      for (UsbDevice device : deviceMap.values()) {
-        JSONObject jsonDevice = new JSONObject();
-        jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
-        jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
-        jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
-        jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
-        jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
-        jsonArrayObject.put(jsonDevice);
-      }
-      jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
+      JSONObject jsonObject = new UsbEventModel(UsbEventId.List, deviceMap).toJSONObject(filter);
 
       // Callback with result.
       PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -173,8 +149,9 @@ public class UsbEvent extends CordovaPlugin {
    * Callback emit device information at attaching and detaching USB after this method call.
    *
    * @param callbackContext The callback context used when calling back into JavaScript.
+   * @param args            The exec() arguments.
    */
-  private void registerEventCallback(final CallbackContext callbackContext) {
+  private void registerEventCallback(final CallbackContext callbackContext, final JSONArray args) {
     // Start monitoring
     this.registerUsbAttached();
     this.registerUsbDetached();
@@ -184,9 +161,12 @@ public class UsbEvent extends CordovaPlugin {
         // Update callback
         eventCallback = callbackContext;
 
+        // Filter settings
+        // TIPS: throw if essencial object does not exist.
+        this.filter = args == null ? null : IncludeFilter.create(args.getJSONObject(0));
+
         // create output JSON object
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_REGISTER_CALLBACK);
+        JSONObject jsonObject = new UsbEventModel(UsbEventId.Registered).toJSONObject();
 
         // Callback with result.
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -218,8 +198,7 @@ public class UsbEvent extends CordovaPlugin {
         eventCallback = null;
 
         // create output JSON object
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_UNREGISTER_CALLBACK);
+        JSONObject jsonObject = new UsbEventModel(UsbEventId.Unregistered).toJSONObject();
 
         // Callback with result.
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -288,18 +267,8 @@ public class UsbEvent extends CordovaPlugin {
           UsbEvent.this.eventCallback != null && device != null) {
 
           // create output JSON object
-          JSONObject jsonObject = new JSONObject();
-          jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_ATTACHED);
-
-          JSONArray jsonArrayObject = new JSONArray();
-          JSONObject jsonDevice = new JSONObject();
-          jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
-          jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
-          jsonArrayObject.put(jsonDevice);
-          jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
+          JSONObject jsonObject = new UsbEventModel(UsbEventId.Attached, device).toJSONObject(
+            UsbEvent.this.filter);
 
           // Callback with result.
           PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
@@ -329,18 +298,8 @@ public class UsbEvent extends CordovaPlugin {
           UsbEvent.this.eventCallback != null && device != null) {
 
           // create output JSON object
-          JSONObject jsonObject = new JSONObject();
-          jsonObject.put(PROPERTY_EVENT_KEY_ID, PROPERTY_EVENT_VALUE_DETACHED);
-
-          JSONArray jsonArrayObject = new JSONArray();
-          JSONObject jsonDevice = new JSONObject();
-          jsonDevice.put(PROPERTY_EVENT_KEY_VID, device.getVendorId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_PID, device.getProductId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_ID, device.getDeviceId());
-          jsonDevice.put(PROPERTY_EVENT_KEY_DEVICE_NAME, device.getDeviceName());
-          jsonDevice.put(PROPERTY_EVENT_KEY_PROTOCOL, device.getDeviceProtocol());
-          jsonArrayObject.put(jsonDevice);
-          jsonObject.put(PROPERTY_EVENT_KEY_DEVICE_LIST, jsonArrayObject);
+          JSONObject jsonObject = new UsbEventModel(UsbEventId.Detached, device).toJSONObject(
+            UsbEvent.this.filter);
 
           // Callback with result.
           PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);

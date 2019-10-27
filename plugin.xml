@@ -24,5 +24,8 @@
         </config-file>
 
         <source-file src="src/android/UsbEvent.java" target-dir="src/net/kyosho/usb/event" />
+        <source-file src="src/android/UsbEventModel.java" target-dir="src/net/kyosho/usb/event" />
+        <source-file src="src/android/IncludeFilter.java" target-dir="src/net/kyosho/usb/event" />
+        <source-file src="src/android/UsbEventId.java" target-dir="src/net/kyosho/usb/event" />
     </platform>
 </plugin>
