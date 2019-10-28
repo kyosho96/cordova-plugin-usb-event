@@ -1,6 +1,9 @@
 [![GitHub version](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event.svg)](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event)
 [![npm version](https://badge.fury.io/js/cordova-plugin-usb-event.svg)](https://badge.fury.io/js/cordova-plugin-usb-event)
 ![GitHub](https://img.shields.io/github/license/kyosho-/cordova-plugin-usb-event)
+[![GitHub issues](https://img.shields.io/github/issues/kyosho-/cordova-plugin-usb-event)](https://github.com/kyosho-/cordova-plugin-usb-event/issues)
+[![GitHub forks](https://img.shields.io/github/forks/kyosho-/cordova-plugin-usb-event)](https://github.com/kyosho-/cordova-plugin-usb-event/network)
+[![GitHub stars](https://img.shields.io/github/stars/kyosho-/cordova-plugin-usb-event)](https://github.com/kyosho-/cordova-plugin-usb-event/stargazers)
 
 # cordova-plugin-usb-event
 This plugin can handle USB attached and detached events on cordova-android.
