@@ -1,3 +1,6 @@
+[![GitHub version](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event.svg)](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event)
+[![npm version](https://badge.fury.io/js/cordova-plugin-usb-event.svg)](https://badge.fury.io/js/cordova-plugin-usb-event)
+
 # cordova-plugin-usb-event
 cordova-android 向けにUSB接続・切断イベントを扱えるようになります。
 尚、特別なパーミッション設定は不要です。

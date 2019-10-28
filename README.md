@@ -1,3 +1,6 @@
+[![GitHub version](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event.svg)](https://badge.fury.io/gh/kyosho-%2Fcordova-plugin-usb-event)
+[![npm version](https://badge.fury.io/js/cordova-plugin-usb-event.svg)](https://badge.fury.io/js/cordova-plugin-usb-event)
+
 # cordova-plugin-usb-event
 This plugin can handle USB attached and detached events on cordova-android.
 No special permission settings are required to handle the events.
