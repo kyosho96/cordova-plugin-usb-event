@@ -107,7 +107,8 @@ public class UsbEvent extends CordovaPlugin {
 
       // Filter settings
       // TIPS: throw if essencial object does not exist.
-      IncludeFilter filter = args == null ? null : IncludeFilter.create(args.getJSONObject(0));
+      JSONObject option = args.optJSONObject(0);
+      IncludeFilter filter = option == null ? null : IncludeFilter.create(option);
 
       // Get USB devices
       HashMap<String, UsbDevice> deviceMap = this.usbManager.getDeviceList();
@@ -163,7 +164,8 @@ public class UsbEvent extends CordovaPlugin {
 
         // Filter settings
         // TIPS: throw if essencial object does not exist.
-        this.filter = args == null ? null : IncludeFilter.create(args.getJSONObject(0));
+        JSONObject option = args.optJSONObject(0);
+        this.filter = option == null ? null : IncludeFilter.create(option);
 
         // create output JSON object
         JSONObject jsonObject = new UsbEventModel(UsbEventId.Registered).toJSONObject();
@@ -188,9 +190,13 @@ public class UsbEvent extends CordovaPlugin {
    * @param callbackContext The callback context used when calling back into JavaScript.
    */
   private void unregisterEventCallback(final CallbackContext callbackContext) {
-    // Stop monitoring
-    this.unregisterUsbDetached();
-    this.unregisterUsbAttached();
+    try {
+      // Stop monitoring
+      this.unregisterUsbDetached();
+      this.unregisterUsbAttached();
+    } catch (Exception e) {
+      Log.w(TAG, "Receiver is already unregistered.");
+    }
 
     cordova.getThreadPool().execute(() -> {
       try {
@@ -236,8 +242,12 @@ public class UsbEvent extends CordovaPlugin {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    this.unregisterUsbDetached();
-    this.unregisterUsbAttached();
+    try {
+      this.unregisterUsbDetached();
+      this.unregisterUsbAttached();
+    } catch (Exception e) {
+      Log.w(TAG, "Receiver is already unregistered.");
+    }
   }
 
   /**

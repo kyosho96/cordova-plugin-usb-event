@@ -1,6 +1,7 @@
 package net.kyosho.usb.event;
 
 import android.hardware.usb.UsbDevice;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +31,11 @@ final class IncludeFilter {
     }
   }
 
+  /**
+   * TAG
+   */
+  private static final String TAG = IncludeFilter.class.getSimpleName();
+
   private List<DeviceModel> deviceModelList;
 
   public static IncludeFilter create(JSONObject jsonObject) throws JSONException {
@@ -37,10 +43,18 @@ final class IncludeFilter {
 
     String id = jsonObject.getString(UsbEventModel.PROPERTY_EVENT_KEY_ID);
     if (!(UsbEventId.Include.toString().equals(id))) {
-      throw new JSONException("id is not 'include'.");
+      String message = "id is not 'include'.";
+      Log.w(IncludeFilter.TAG, message);
+      throw new JSONException(message);
     }
 
-    JSONArray jsonArray = jsonObject.getJSONArray(UsbEventModel.PROPERTY_EVENT_KEY_DEVICE_LIST);
+    JSONArray jsonArray = jsonObject.optJSONArray(UsbEventModel.PROPERTY_EVENT_KEY_DEVICE_LIST);
+    if(null == jsonArray || 0 >= jsonArray.length()) {
+      String message = "No device.";
+      Log.w(IncludeFilter.TAG, message);
+      return new IncludeFilter(null);
+    }
+
     for (int i = 0; i < jsonArray.length(); i++) {
       JSONObject jsonDevice = jsonArray.getJSONObject(i);
       int vid = jsonDevice.getInt(UsbEventModel.PROPERTY_EVENT_KEY_VID);
@@ -70,6 +84,9 @@ final class IncludeFilter {
           break;
         }
       }
+    } else {
+      // No filter.
+      filteredDevice = device;
     }
 
     return filteredDevice;
