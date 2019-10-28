@@ -41,13 +41,32 @@ USB device information has vendor ID and product ID.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
+```
+
+You can set a filter if you need a specific USB device.
+
+```js
+var filter = {
+  id: 'include',
+  devices: [
+    {
+      vendorId: 1234,
+      productId: 4321
+    }
+  ]
+};
+cordova.plugins.usbevent.listDevices(
+      function(list) {
+        console.log(list);
+      },
+      function(error) {
+        console.log(error);
+      },
+      filter);
 ```
 
 ### Handle USB attached and detached event
@@ -81,10 +100,7 @@ Next, each result is returned on attaching an detaching USB.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
@@ -96,13 +112,32 @@ Next, each result is returned on attaching an detaching USB.
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
+```
+
+You can set a filter if you need a specific USB device.
+
+```js
+var filter = {
+  id: 'include',
+  devices: [
+    {
+      vendorId: 1234,
+      productId: 4321
+    }
+  ]
+};
+cordova.plugins.usbevent.registerEventCallback(
+      function(result) {
+        console.log(result);
+      },
+      function(error) {
+        console.log(error);
+      },
+      filter);
 ```
 
 Notice: This plugin can register single callback. The method overrite previous registered callback.
@@ -170,9 +205,6 @@ enum UsbEventId {
 interface UsbDevice {
     vendorId: number;
     productId: number;
-    deviceId: number;
-    deviceName: string;
-    protocol: number;
 }
 
 /**

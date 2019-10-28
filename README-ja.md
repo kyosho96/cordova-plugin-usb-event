@@ -40,13 +40,32 @@ USB機器のベンダーIDとプロダクトIDが含まれます。
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
+```
+
+特定のUSB機器のみ必要である場合、フィルタを設定できます。
+
+```js
+var filter = {
+  id: 'include',
+  devices: [
+    {
+      vendorId: 1234,
+      productId: 4321
+    }
+  ]
+};
+cordova.plugins.usbevent.listDevices(
+      function(list) {
+        console.log(list);
+      },
+      function(error) {
+        console.log(error);
+      },
+      filter);
 ```
 
 ### USB接続・切断イベントを取得する
@@ -79,10 +98,7 @@ cordova.plugins.usbevent.registerEventCallback(
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
@@ -94,13 +110,32 @@ cordova.plugins.usbevent.registerEventCallback(
   "devices": [
     {
       "vendorId": 1234,
-      "productId": 4321,
-      "deviceId": 9876,
-      "deviceName": "USB device X",
-      "protocol": 5432
+      "productId": 4321
     }
   ]
 }
+```
+
+特定のUSB機器のみ必要である場合、フィルタを設定できます。
+
+```js
+var filter = {
+  id: 'include',
+  devices: [
+    {
+      vendorId: 1234,
+      productId: 4321
+    }
+  ]
+};
+cordova.plugins.usbevent.registerEventCallback(
+      function(result) {
+        console.log(result);
+      },
+      function(error) {
+        console.log(error);
+      },
+      filter);
 ```
 
 注釈：登録できるコールバックは１つです。2回目以降は以前のコールバック関数を上書きします。
@@ -168,9 +203,6 @@ enum UsbEventId {
 interface UsbDevice {
     vendorId: number;
     productId: number;
-    deviceId: number;
-    deviceName: string;
-    protocol: number;
 }
 
 /**
