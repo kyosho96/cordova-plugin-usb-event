@@ -19,7 +19,7 @@
             </feature>
         </config-file>
 
-        <config-file parent="/*" target="AndroidManifest.xml">
+        <config-file parent="/manifest" target="AndroidManifest.xml">
             <uses-feature android:name="android.hardware.usb.host" android:required="true"/>
         </config-file>
 
