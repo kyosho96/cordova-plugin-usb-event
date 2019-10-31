@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-usb-event",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "USB attached event plugin.",
   "cordova": {
     "id": "cordova-plugin-usb-event",
@@ -10,7 +10,7 @@
   },
   "engines": {
     "cordovaDependencies": {
-      "1.0.0": {
+      "1.0.1": {
         "cordova-android": ">=7.0.0"
       }
     }
