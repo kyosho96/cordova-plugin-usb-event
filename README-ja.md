@@ -14,7 +14,7 @@ cordova-android 向けにUSB接続・切断イベントを扱えるようにな�
 ## インストール
 
 ```
-$ cordova pluguin add cordova-plugin-usb-event
+$ cordova plugin add cordova-plugin-usb-event
 ```
 
 ## 使い方

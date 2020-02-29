@@ -15,7 +15,7 @@ And it is registered at [npmjs](https://www.npmjs.com/package/cordova-plugin-usb
 ## Install
 
 ```
-$ cordova pluguin add cordova-plugin-usb-event
+$ cordova plugin add cordova-plugin-usb-event
 ```
 
 ## Usage
